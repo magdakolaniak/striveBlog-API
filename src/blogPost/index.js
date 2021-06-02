@@ -1,13 +1,20 @@
 import express from 'express';
 import createError from 'http-errors';
 import postModel from './schema.js';
+import q2m from 'query-to-mongo';
 
 const postsRouter = express.Router();
 
 postsRouter.get('/', async (req, res, next) => {
   try {
-    const blogPosts = await postModel.find();
-    res.send(blogPosts);
+    const query = q2m(req.query);
+    const total = await postModel.countDocuments(query.criteria);
+    const blogPosts = await postModel
+      .find(query.criteria, query.options.fields)
+      .skip(query.options.skip)
+      .limit(query.options.limit)
+      .sort(query.options.sort);
+    res.send({ links: query.links('/blogPosts', total), total, blogPosts });
   } catch (error) {
     console.log(error);
     next(error);
