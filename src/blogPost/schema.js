@@ -42,6 +42,15 @@ const PostSchema = new Schema(
       type: String,
       required: true,
     },
+    comments: [
+      {
+        elementId: String,
+        comment: String,
+        author: String,
+        rate: Number,
+        date: '',
+      },
+    ],
   },
   { timestamps: true }
 );
