@@ -2,7 +2,6 @@ import express from 'express';
 import createError from 'http-errors';
 import postModel from './schema.js';
 import q2m from 'query-to-mongo';
-
 const postsRouter = express.Router();
 
 postsRouter.get('/', async (req, res, next) => {
@@ -11,9 +10,11 @@ postsRouter.get('/', async (req, res, next) => {
     const total = await postModel.countDocuments(query.criteria);
     const blogPosts = await postModel
       .find(query.criteria, query.options.fields)
+      .populate('authors')
       .skip(query.options.skip)
       .limit(query.options.limit)
       .sort(query.options.sort);
+
     res.send({ links: query.links('/blogPosts', total), total, blogPosts });
   } catch (error) {
     console.log(error);

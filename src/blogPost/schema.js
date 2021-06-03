@@ -28,16 +28,8 @@ const PostSchema = new Schema(
         required: true,
       },
     },
-    author: {
-      name: {
-        type: String,
-        required: true,
-      },
-      avatar: {
-        type: String,
-        required: true,
-      },
-    },
+    blogAuthor: [{ type: Schema.Types.ObjectId, ref: 'Authors' }],
+
     content: {
       type: String,
       required: true,

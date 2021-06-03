@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import listEndpoints from 'express-list-endpoints';
 import postsRouter from './blogPost/index.js';
+import authorsRouter from './authors/index.js';
 
 const server = express();
 
@@ -12,6 +13,7 @@ server.use(express.json());
 server.use(cors());
 
 server.use('/blogPosts', postsRouter);
+server.use('/authors', authorsRouter);
 console.log(listEndpoints(server));
 
 mongoose
