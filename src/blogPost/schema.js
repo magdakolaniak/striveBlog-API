@@ -28,7 +28,9 @@ const PostSchema = new Schema(
         required: true,
       },
     },
-    blogAuthor: [{ type: Schema.Types.ObjectId, ref: 'Authors' }],
+    blogAuthor: [
+      { type: Schema.Types.ObjectId, required: true, ref: 'Author' },
+    ],
 
     content: {
       type: String,

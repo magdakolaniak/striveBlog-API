@@ -10,7 +10,7 @@ postsRouter.get('/', async (req, res, next) => {
     const total = await postModel.countDocuments(query.criteria);
     const blogPosts = await postModel
       .find(query.criteria, query.options.fields)
-      .populate('authors')
+      .populate('blogAuthor')
       .skip(query.options.skip)
       .limit(query.options.limit)
       .sort(query.options.sort);
@@ -25,7 +25,7 @@ postsRouter.get('/', async (req, res, next) => {
 postsRouter.get('/:id', async (req, res, next) => {
   try {
     const id = req.params.id;
-    const blogPost = await postModel.findById(id);
+    const blogPost = await postModel.findById(id).populate('blogAuthor');
     if (blogPost) {
       res.send(blogPost);
     } else {
