@@ -4,6 +4,7 @@ import createError from 'http-errors';
 import AuthorsModel from './schema.js';
 import bcrypt from 'bcrypt';
 import { basicAuthMiddleware } from '../auth/basic.js';
+import { JWTAuthenticate } from '../auth/tools.js';
 
 const authorsRouter = express.Router();
 
@@ -43,6 +44,32 @@ authorsRouter.post('/', async (req, res, next) => {
     } else {
       next(createError(500, 'An error while saving new author'));
     }
+  }
+});
+
+authorsRouter.post('/login', async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const author = await AuthorsModel.checkCredentials(email, password);
+    if (author) {
+      const accessToken = await JWTAuthenticate(author);
+      res.send({ accessToken });
+    } else {
+      next(createError(401));
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+authorsRouter.post('/register', async (req, res, next) => {
+  try {
+    const newUser = new UserModel(req.body);
+
+    const { _id } = await newUser.save();
+
+    res.status(201).send({ _id });
+  } catch (error) {
+    next(error);
   }
 });
 

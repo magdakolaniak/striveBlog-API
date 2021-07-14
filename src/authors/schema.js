@@ -25,19 +25,19 @@ AuthorSchema.pre('save', async function (next) {
   }
   next();
 });
-// AuthorSchema.methods.toJSON = function () {
-//   // toJSON is a method called every time express does a res.send
+AuthorSchema.methods.toJSON = function () {
+  // toJSON is a method called every time express does a res.send
 
-//   const user = this;
+  const user = this;
 
-//   const userObject = user.toObject();
+  const userObject = user.toObject();
 
-//   delete userObject.password;
+  delete userObject.password;
 
-//   delete userObject.__v;
+  delete userObject.__v;
 
-//   return userObject;
-// };
+  return userObject;
+};
 AuthorSchema.statics.checkCredentials = async function (email, plainPw) {
   // 1. find user in db by email
 
