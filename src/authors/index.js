@@ -1,5 +1,6 @@
 import express from 'express';
 import createError from 'http-errors';
+import passport from 'passport';
 
 import AuthorsModel from './schema.js';
 import bcrypt from 'bcrypt';
@@ -8,7 +9,7 @@ import { JWTAuthenticate } from '../auth/tools.js';
 
 const authorsRouter = express.Router();
 
-authorsRouter.get('/', basicAuthMiddleware, async (req, res, next) => {
+authorsRouter.get('/', async (req, res, next) => {
   try {
     const authors = await AuthorsModel.find();
     res.send(authors);
@@ -18,20 +19,20 @@ authorsRouter.get('/', basicAuthMiddleware, async (req, res, next) => {
   }
 });
 
-authorsRouter.get('/:id', async (req, res, next) => {
-  try {
-    const authorId = req.params.id;
-    const author = await AuthorsModel.findById(authorId);
-    if (author) {
-      res.send(author);
-    } else {
-      next(createError(404, `An author with id: ${authorId} not found`));
-    }
-  } catch (error) {
-    console.log(error);
-    next(createError(500, 'An error while getting authors'));
-  }
-});
+// authorsRouter.get('/:id', async (req, res, next) => {
+//   try {
+//     const authorId = req.params.id;
+//     const author = await AuthorsModel.findById(authorId);
+//     if (author) {
+//       res.send(author);
+//     } else {
+//       next(createError(404, `An author with id: ${authorId} not found`));
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     next(createError(500, 'An error while getting authors'));
+//   }
+// });
 authorsRouter.post('/', async (req, res, next) => {
   try {
     const newAuthor = new AuthorsModel(req.body);
@@ -121,5 +122,33 @@ authorsRouter.delete('/:id', async (req, res, next) => {
     next(createError(500, 'An error occured while deleting an author'));
   }
 });
+
+// GOOGLE PART HERE//
+authorsRouter.get(
+  '/googleLogin',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+); // This endpoint redirects automagically to Google
+
+authorsRouter.get(
+  '/googleRedirect',
+  passport.authenticate('google'),
+  async (req, res, next) => {
+    try {
+      console.log(req.user);
+      // res.send(req.user.tokens)
+
+      // res.status(200).redirect(`http://localhost:3000?accessToken=${req.user.tokens.accessToken}&refreshToken=${req.user.tokens.refreshToken}`)
+      res.cookie('accessToken', req.user.tokens.accessToken, {
+        httpOnly: true,
+      }); // in production environment you should have sameSite: "none", secure: true
+      res.cookie('refreshToken', req.user.tokens.refreshToken, {
+        httpOnly: true,
+      });
+      res.status(200).redirect('http://localhost:3000/home');
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default authorsRouter;
